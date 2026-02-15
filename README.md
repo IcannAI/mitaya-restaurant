@@ -57,9 +57,6 @@
 # 安裝依賴
 npm install
 
-# API
-Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-
 # 開發模式
 npm dev
 
