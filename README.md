@@ -40,13 +40,45 @@
 
   覆蓋率約 75–85%（業務邏輯部分）
 
-## 設計決策與 Trade-off
+## Accessibility Strategy
 
-| 決策                          | 優點                                      | 缺點 / 替代方案                     | 為什麼選擇這樣做                     |
-|-------------------------------|-------------------------------------------|-------------------------------------|--------------------------------------|
-| 自製路由（而非 react-router） | 展現底層理解、bundle 更小                | 缺少進階功能（nested route 等）     | 專案規模小，展示原理更重要           |
-| Zustand 而非 Context/Redux    | 簡單、型別推斷好、無 boilerplate         | 不適合超大型狀態樹                  | 購物車規模適中，追求簡潔             |
-| 自製 component 基類           | 強制思考生命週期與組合                   | 比純 hooks 稍冗長                   | 面試常問「你懂 React 原理嗎？」      |
-| hash router 而非 history      | 部署簡單（無需 server 配置）              | URL 較不美觀                        | portfolio 優先開發/部署便利          |
-| 不使用 Next.js                | 專注 client-side 能力展示                 | 失去 SSR/SSG 優勢                   | 刻意練習純 SPA 與動態渲染            |
+1. **語意化 HTML**  
+   - 使用正確的 landmark roles（`<main>`, `<nav>`, `<section>`, `<article>` 等）  
+   - 菜單項目使用 `<ul role="tablist">` + `<li role="tab">` + `aria-selected` + `aria-controls`
 
+2. **鍵盤導航完整性**  
+   - 所有互動元件（Tab、Button、輸入框、購物車項目）皆可透過 Tab 鍵依邏輯順序到達  
+   - Tab 切換使用 Arrow 左右鍵移動焦點，Enter/Space 啟動  
+   - Esc 可關閉 modal、購物車抽屜或下拉選單  
+   - 避免鍵盤陷阱（focus trap 在必要 modal 內實現）
+
+3. **螢幕閱讀器支援**  
+   - 動態內容變化使用 `aria-live="polite"`（購物車總額更新、搜尋結果數量）  
+   - 表單錯誤訊息使用 `aria-describedby` 關聯錯誤文字  
+   - 圖示按鈕提供 `aria-label` 或 `aria-labelledby`  
+   - 地圖使用 `role="img"` + `aria-label` 描述位置
+
+4. **視覺與顏色對比**  
+   - 文字對比至少 4.5:1（正常文字） / 3:1（大型文字）  
+   - focus 狀態使用明顯輪廓（outline + 2px offset），不只靠顏色變化  
+   - 支援高對比模式（Tailwind dark mode 基礎上再強化）
+
+5. **測試與驗證工具**  
+   - axe DevTools / WAVE / Lighthouse Accessibility 分數 ≥98  
+   - 手動鍵盤測試（Windows Narrator + NVDA + VoiceOver）  
+   - 螢幕閱讀器讀取購物車總額、表單錯誤、搜尋結果數量正確
+
+
+## Future Improvements（未來改進方向）
+
+- 串接真實後端 API（菜單資料、訂位提交、訂單狀態查詢）
+- 加入使用者認證系統（登入後保存訂位歷史與常用購物車）
+- 轉換為 Next.js App Router + Server Components + React Server Actions
+- 實作 PWA（離線瀏覽菜單、安裝提示、推送通知）
+- 優化圖片載入：使用 `<img loading="lazy">` + placeholder blur + WebP/AVIF 格式
+- 支援更多語言（日文、韓文）與 RTL 語言佈局
+- 加入菜單推薦引擎（根據偏好 / 過去訂單）
+- 完整 CI/CD 流程（GitHub Actions + 視覺回歸測試 + Lighthouse CI）
+- 實作無障礙自動化測試（cypress-axe 或 playwright-axe）
+- 支援深色模式切換記憶（localStorage + prefers-color-scheme）
+- 購物車進階功能：優惠碼、稅金計算、送貨選項
