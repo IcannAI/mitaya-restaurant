@@ -1,11 +1,10 @@
 # Mitaya's Restaurant Showcase – Modern React SPA Portfolio Project
 一個單頁餐廳展示網站，完整實現動態菜單瀏覽、搜尋篩選、購物車、訂位表單、地圖展示，並強調現代前端工程最佳實務。
 
-**Live Demo**：https://restaurant-showcase-mit.vercel.app/ （請替換成你的實際部署連結）
 **技術展示重點**：React + TypeScript + 自製 component 系統 + 自製路由 + a11y + i18n + 效能意識 + 測試
 
 ## 核心功能
-- **單頁應用（SPA）**：僅使用一個 `index.html`，所有內容由 JavaScript 動態渲染
+- **單頁應用（SPA）**：僅使用一個index.html，所有內容由 JavaScript 動態渲染
 - **菜單模組**：分類 Tab 切換、關鍵字搜尋、篩選（素食 / 價格區間）
 - **購物車**：即時加減數量、移除項目、總額計算、localStorage 持久化
 - **訂位表單**：姓名、日期、人數、備註欄位，完整驗證與錯誤提示
@@ -50,13 +49,4 @@
 | 自製 component 基類           | 強制思考生命週期與組合                   | 比純 hooks 稍冗長                   | 面試常問「你懂 React 原理嗎？」      |
 | hash router 而非 history      | 部署簡單（無需 server 配置）              | URL 較不美觀                        | portfolio 優先開發/部署便利          |
 | 不使用 Next.js                | 專注 client-side 能力展示                 | 失去 SSR/SSG 優勢                   | 刻意練習純 SPA 與動態渲染            |
-
-## 如何執行專案
-
-```bash
-# 安裝依賴
-npm install
-
-# 開發模式
-npm dev
 
