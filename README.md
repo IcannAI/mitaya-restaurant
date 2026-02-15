@@ -3,7 +3,8 @@
 
 **技術展示重點**：React + TypeScript + 自製 component 系統 + 自製路由 + a11y + i18n + 效能意識 + 測試
 
-## 核心功能
+## Functionality
+
 - **單頁應用（SPA）**：僅使用一個index.html，所有內容由 JavaScript 動態渲染
 - **菜單模組**：分類 Tab 切換、關鍵字搜尋、篩選（素食 / 價格區間）
 - **購物車**：即時加減數量、移除項目、總額計算、localStorage 持久化
@@ -15,13 +16,13 @@
 - **響應式設計**：mobile-first，涵蓋主流斷點
 - **動畫**：購物車加入動畫、Tab 切換過渡（framer-motion）
 
-## 技術棧
+## Technology Stack
 | 分類             | 技術選擇                              | 主要理由                              |
 |------------------|---------------------------------------|---------------------------------------|
-| 框架             | React 19 (hooks + concurrent)         | 2026 年主流，展現現代 React 思維      |
+| 框架             | React 19 (hooks + concurrent)         | 主流，展現現代 React 思維      |
 | 語言             | TypeScript 5.x                        | 強型別、可維護性、面試加分            |
 | 建置工具         | Vite                                  | 極速 HMR、小 bundle                   |
-| 樣式             | Tailwind CSS + shadcn/ui              | 快速開發、現代美觀、a11y 友好         |
+| 樣式             | Tailwind CSS + shadcn/ui              | 快速開發、現代美觀、a11y          |
 | 路由             | 自製 hash-based router                | 展現對瀏覽器路由機制的理解            |
 | 狀態管理         | Zustand                               | 輕量、型別安全、易測試                |
 | 表單             | react-hook-form + zod                 | 高效、效能佳、驗證強大                |
@@ -69,7 +70,7 @@
    - 螢幕閱讀器讀取購物車總額、表單錯誤、搜尋結果數量正確
 
 
-## Future Improvements（未來改進方向）
+## Future Improvements
 
 - 串接真實後端 API（菜單資料、訂位提交、訂單狀態查詢）
 - 加入使用者認證系統（登入後保存訂位歷史與常用購物車）
