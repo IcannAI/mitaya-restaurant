@@ -1,44 +1,63 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useApp } from '../context/AppContext';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { motion } from 'framer-motion';
-import { CheckCircle, MapPin, Phone, Mail } from 'lucide-react';
-// 同時匯入 schema 和型別
-import { reservationSchema, type ReservationFormData } from '../types';
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useApp } from '../context/AppContext'
+import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/Input'
+import { motion } from 'framer-motion'
+import { CheckCircle, MapPin, Phone, Mail } from 'lucide-react'
+import { reservationSchema, type ReservationFormData } from '../types'
 
 export const ReservationPage: React.FC = () => {
-  const { t } = useApp();
-  const [isSuccess, setIsSuccess] = useState(false);
+  const { t } = useApp()
+  const [isSuccess, setIsSuccess] = useState(false)
+
+  // ─── 型別策略說明 ───────────────────────────────────────────────────────────
+  //
+  // useForm 不傳任何泛型，完全依賴 zodResolver 從 reservationSchema 自動推導。
+  //
+  // 為什麼這樣可以解決 TS2322：
+  //   問題根源：z.coerce.number() 在 Zod v4 的 Input type = unknown
+  //   手動傳入 useForm<ReservationFormData> 時，TS 看到：
+  //     TFieldValues = { guests: number }（手動指定）
+  //     resolver 的 Input = { guests: unknown }（coerce 的實際 Input type）
+  //     → 兩者衝突 → TS2322
+  //
+  //   不傳泛型時，TS 讓 zodResolver 決定所有型別：
+  //     TFieldValues 由 resolver 推導 = { guests: unknown }
+  //     TTransformedValues 由 resolver 推導 = { guests: number }
+  //     → 兩端一致，無衝突
+  //
+  //   onSubmit 收到的 data 型別標註為 ReservationFormData（guests: number），
+  //   這是 handleSubmit 的 callback 型別，與 TTransformedValues 對齊，型別安全。
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ReservationFormData>({
+  } = useForm({
     resolver: zodResolver(reservationSchema),
-  });
+  })
 
   const onSubmit = async (data: ReservationFormData) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log("Reservation Data:", data);
-    setIsSuccess(true);
-    reset();
-    setTimeout(() => setIsSuccess(false), 5000);
-  };
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    console.log('Reservation Data:', data)
+    setIsSuccess(true)
+    reset()
+    setTimeout(() => setIsSuccess(false), 5000)
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col md:flex-row gap-12 min-h-[calc(100vh-200px)]">
-      {/* Contact Info / Map Placeholder */}
+      {/* Contact Info */}
       <div className="w-full md:w-1/2 space-y-8">
         <div>
-          <h1 className="text-4xl font-serif font-bold text-secondary mb-4">{t('res.title')}</h1>
+          <h1 className="text-4xl font-serif font-bold text-secondary mb-4">
+            {t('res.title')}
+          </h1>
           <p className="text-gray-500 leading-relaxed">
-            Reserve your table for an unforgettable dining experience. 
+            Reserve your table for an unforgettable dining experience.
             For parties larger than 10, please contact us directly.
           </p>
         </div>
@@ -73,11 +92,11 @@ export const ReservationPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Static Map Image Placeholder */}
+        {/* Static Map Placeholder */}
         <div className="w-full h-64 bg-gray-200 rounded-xl overflow-hidden shadow-inner relative group cursor-pointer">
-           <img 
-            src="https://picsum.photos/seed/map/800/400?grayscale&blur=2" 
-            alt="Location Map" 
+          <img
+            src="https://picsum.photos/seed/map/800/400?grayscale&blur=2"
+            alt="Location Map"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
           <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-transparent transition-colors">
@@ -89,10 +108,10 @@ export const ReservationPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Form */}
+      {/* Reservation Form */}
       <div className="w-full md:w-1/2 bg-white p-8 rounded-2xl shadow-xl border border-gray-100 h-fit">
         {isSuccess ? (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-12"
@@ -100,35 +119,41 @@ export const ReservationPage: React.FC = () => {
             <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle size={40} />
             </div>
-            <h2 className="text-2xl font-bold text-secondary mb-2">{t('res.success')}</h2>
+            <h2 className="text-2xl font-bold text-secondary mb-2">
+              {t('res.success')}
+            </h2>
             <p className="text-gray-500">We look forward to seeing you!</p>
-            <Button className="mt-8" variant="outline" onClick={() => setIsSuccess(false)}>
+            <Button
+              className="mt-8"
+              variant="outline"
+              onClick={() => setIsSuccess(false)}
+            >
               Make Another Reservation
             </Button>
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <Input 
-              label={t('res.name')} 
-              placeholder="John Doe" 
-              {...register('name')} 
-              error={errors.name?.message}
+            <Input
+              label={t('res.name')}
+              placeholder="John Doe"
+              {...register('name')}
+              error={errors.name?.message as string | undefined}
             />
-            
+
             <div className="grid grid-cols-2 gap-4">
-              <Input 
-                label={t('res.date')} 
-                type="datetime-local" 
-                {...register('date')} 
-                error={errors.date?.message}
+              <Input
+                label={t('res.date')}
+                type="datetime-local"
+                {...register('date')}
+                error={errors.date?.message as string | undefined}
               />
-              <Input 
-                label={t('res.guests')} 
-                type="number" 
-                min={1} 
-                max={10} 
-                {...register('guests')} 
-                error={errors.guests?.message}
+              <Input
+                label={t('res.guests')}
+                type="number"
+                min={1}
+                max={10}
+                {...register('guests')}
+                error={errors.guests?.message as string | undefined}
               />
             </div>
 
@@ -146,7 +171,7 @@ export const ReservationPage: React.FC = () => {
             <Button type="submit" className="w-full" size="lg" isLoading={isSubmitting}>
               {t('res.submit')}
             </Button>
-            
+
             {Object.keys(errors).length > 0 && (
               <p className="text-red-500 text-sm text-center">{t('res.error')}</p>
             )}
@@ -154,5 +179,5 @@ export const ReservationPage: React.FC = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
