@@ -1,4 +1,5 @@
 
+node_modules/
 # Build output
 dist/
 
@@ -7,3 +8,7 @@ dist/
 
 # Test coverage
 coverage/
+
+audit/
+scripts/
+config.yml
