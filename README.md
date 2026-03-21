@@ -1,16 +1,17 @@
 # Mitaya's Restaurant — Modern React SPA
 
 > A production-quality restaurant showcase built with React 19, TypeScript, and modern frontend engineering practices.
-> Demonstrates system architecture thinking, accessibility-first design, and engineering documentation.
+> Demonstrates system architecture thinking, accessibility-first design, and honest engineering documentation.
 
-**→ [Live Demo](https://mitaya-restaurant.vercel.app)** &nbsp;|&nbsp; **→ [Architecture (Planned)](./docs/adr/)** &nbsp;|&nbsp; **→ [Contributing](./CONTRIBUTING.md)**
+**→ [Live Demo](https://mitaya-restaurant.vercel.app)** &nbsp;|&nbsp; **→ [Architecture](./docs/adr/)** &nbsp;|&nbsp; **→ [Contributing](./CONTRIBUTING.md)**
 
 > [!WARNING]
-> **Engineering Honesty Disclaimer**: This project is an early-stage MVP. While it uses React 19, it currently carries significant architectural debt (God Context) and a **Critical Bus Factor of 1**. See [Known Issues](#known-issues) for details.
+> **Engineering Honesty Disclaimer**: This project is an active MVP under structured refactoring.
+> Phase 0–4 roadmap scripts are in progress. See [Known Issues](#known-issues--risks) for current status.
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-6.5-646CFF?logo=vite)
+![Vite](https://img.shields.io/badge/Vite-6.4-646CFF?logo=vite)
 ![License](https://img.shields.io/badge/License-ISC-green)
 
 ---
@@ -18,67 +19,79 @@
 ## System Architecture
 
 The application follows a **feature-oriented flat structure** with a single shared context layer.
-Planned migration to Feature-Sliced Design (FSD) is tracked in the Roadmap.
+Planned migration to Feature-Sliced Design (FSD) is scaffolded in `src/` (Phase 3).
 
 ```
 index.tsx
 └── App.tsx
     ├── context/AppContext.tsx     # Global state: cart / language / UI toggles
     ├── hooks/useCustomRouter.ts   # Hash-based SPA routing (window.location.hash)
+    ├── hooks/useMenuFilter.ts     # useTransition-powered menu filter (Phase 3)
+    ├── hooks/useOptimisticCart.ts # useOptimistic cart feedback (Phase 3)
+    ├── hooks/usePageLoader.ts     # lazy() + Suspense code splitting (Phase 3)
+    ├── store/                     # Zustand stores — cart + language (Phase 2)
+    ├── lib/                       # safeStorage, i18n init
+    ├── services/                  # API service layer — reservation, menu
     ├── pages/
     │   ├── HomePage.tsx
     │   ├── MenuPage.tsx
     │   └── ReservationPage.tsx
-    └── components/
-        ├── Layout.tsx
-        ├── CartDrawer.tsx
-        └── ui/                    # Button, Input (shadcn/ui-inspired)
+    ├── components/
+    │   ├── Layout.tsx
+    │   ├── CartDrawer.tsx
+    │   └── ui/                    # Button, Input (shadcn/ui-inspired)
+    └── src/                       # FSD migration target (Phase 3 scaffold)
+        ├── features/cart/
+        ├── entities/menu-item/
+        └── shared/
 ```
 
 ### Architectural Trade-offs
 
 | Decision | Approach | Alternative | Why chosen | Technical Cost |
-| :--- | :--- | :--- | :--- | :--- |
-| **State** | `AppContext` (God Object) | Zustand / Redux | Zero-dependency speed; simplified i18n + cart. | Application-wide re-renders; high coupling. |
-| **Routing** | Custom `useCustomRouter` | `react-router-dom` | Control over hash navigation; lightweight. | No nested routes or URL params support. |
-| **i18n** | Inline in `constants.ts` | `react-i18next` | Avoids library overhead for 2-language MVP. | Not scalable for complex locales. |
-| **Reliability** | Unsafe `localStorage` | Zod Guarded | Rapid development prototyping. | Fragile to malformed storage data. |
+|:---------|:---------|:------------|:-----------|:---------------|
+| **State** | `AppContext` (God Object) → Zustand (Phase 2) | Redux | MVP speed; Zustand migration in progress | Application-wide re-renders pre-migration |
+| **Routing** | Custom `useCustomRouter` (hash-based) | `react-router-dom` | Control over hash navigation; lightweight | No nested routes or URL params |
+| **i18n** | Custom → react-i18next (Phase 2) | next-intl | Avoids library overhead for 2-language MVP | Not scalable for complex locales |
+| **Reliability** | `safeStorage` (Zod-guarded, Phase 0) | Server session | Rapid prototyping baseline | Single-device only; auth needed for sync |
 
 **Key architectural decisions** (documented in [`docs/adr/`](./docs/adr/)):
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| State management | React Context | Zero-dependency MVP; planned Zustand migration |
-| Routing | Custom `useCustomRouter` | Demonstrates hash routing mechanics; `react-router-dom` deprioritized |
-| i18n | Custom implementation | Avoids `react-i18next` overhead for 2-language MVP |
-| Form validation | react-hook-form + Zod v4 | Schema-driven, single source of truth for types and validation |
+| ADR | Decision | Status |
+|-----|----------|--------|
+| [ADR-0001](./docs/adr/0001-custom-hash-router.md) | Custom hash-based router | Accepted |
+| [ADR-0002](./docs/adr/0002-app-context-god-object.md) | AppContext God Object | Accepted (transitional → Zustand) |
+| [ADR-0003](./docs/adr/0003-manual-shadcn-components.md) | Manual shadcn/ui components | Accepted |
 
-> **Note on AppContext:** Currently a God Object managing cart, language, and UI state.
-> This is an acknowledged design tradeoff for MVP speed. Refactor tracked in [ADR-0002 (Planned)](./docs/adr/0002-app-context-god-object.md).
+> **Note on AppContext:** Currently being migrated to `store/cart.store.ts` and `store/language.store.ts` via Zustand (Phase 2). Refactor tracked in [ADR-0002](./docs/adr/0002-app-context-god-object.md).
 
 ---
 
 ## Tech Stack
 
+### Current vs Planned
+
 | Layer | Current | Planned |
 |-------|---------|---------|
-| State | React Context | Zustand |
-| i18n | Custom implementation | react-i18next |
-| Routing | `useCustomRouter` (hash) | Evaluate react-router-dom |
+| State | Zustand (Phase 2) / AppContext (transitional) | Full Zustand migration |
+| i18n | react-i18next + locales/ (Phase 2) | Additional locale support |
+| Routing | `useCustomRouter` (hash) | Evaluate react-router-dom (ADR-0001) |
 | Component library | Manual Button / Input | Full shadcn/ui |
-| Testing | Vitest (smoke tests) | +@testing-library/react, coverage CI |
-| CI/CD | None | GitHub Actions (lint / build / security scan) |
+| Testing | Vitest — smoke + schema tests | +@testing-library/react, Codecov badge |
+| CI/CD | GitHub Actions (Phase 1) | Lighthouse CI, visual regression |
 
-**Full dependency list:**
+### Full Dependency List
 
 | Category | Library | Version |
 |----------|---------|---------|
 | Framework | React | 19 |
 | Language | TypeScript | 5.8 |
-| Build | Vite | 6.5 |
-| Styling | Tailwind CSS + clsx + tailwind-merge | latest |
+| Build | Vite | 6.4 |
+| State | Zustand | latest |
+| Styling | Tailwind CSS 4 + clsx + tailwind-merge | latest |
 | Animation | framer-motion | 12 |
 | Forms | react-hook-form + zod | 7 + 4 |
+| i18n | i18next + react-i18next | latest |
 | Icons | lucide-react | latest |
 
 ---
@@ -86,7 +99,7 @@ index.tsx
 ## Core Functionality
 
 - **Menu module** — category tabs, keyword search, vegetarian / price filters
-- **Shopping cart** — add / remove / quantity controls, subtotal, localStorage persistence
+- **Shopping cart** — add / remove / quantity controls, subtotal, localStorage persistence (Zod-guarded)
 - **Reservation form** — full Zod schema validation, datetime picker, optimistic success state
 - **i18n** — English / Traditional Chinese toggle
 - **Accessibility** — full keyboard navigation (Tab / Arrow / Enter / Esc), ARIA roles, screen reader support
@@ -110,13 +123,15 @@ The domain is modelled around three bounded contexts:
 ```
 
 **Zod as schema contract layer:**
-`reservationSchema` in `types.ts` is the single source of truth —
-it drives form validation, TypeScript types (`z.infer`), and future API request validation.
+`reservationSchema` and `CartItemsSchema` in `types.ts` are the single source of truth —
+driving form validation, TypeScript types, localStorage safety, and future API validation.
 
 ```ts
-// One schema → validation + types, always in sync
+// One schema → validation + types + storage safety, always in sync
 export const reservationSchema = z.object({ ... })
 export type ReservationFormData = z.infer<typeof reservationSchema>
+
+export const CartItemsSchema = z.array(z.object({ ... }))  // guards localStorage
 ```
 
 Full ADR documentation: [`docs/adr/`](./docs/adr/)
@@ -125,7 +140,7 @@ Full ADR documentation: [`docs/adr/`](./docs/adr/)
 
 ## Testing
 
-**Current coverage: smoke tests (pure functions, no DOM dependency)**
+**Current coverage: smoke tests + Zod schema edge cases**
 
 ```bash
 npm test                # run all tests
@@ -135,11 +150,14 @@ npm run test:coverage   # generate coverage report
 | Suite | Tests | Scope |
 |-------|-------|-------|
 | Cart logic | 4 | calcTotal boundary values |
-| Form validation | 5 | guests range, name trim |
+| Form validation | 3 | guests range, name trim |
 | i18n | 3 | key lookup, fallback behavior |
+| reservationSchema — guests | 3 | coerce string→number, boundary 0/11 |
+| reservationSchema — date | 2 | past rejection, future acceptance |
+| reservationSchema — name | 2 | min-length enforcement |
 
-**Phase 2 (planned):** Component tests via `@testing-library/react`
-— CartDrawer interactions, ReservationForm submission, MenuPage tab switching.
+**Phase 3 (planned):** Component tests via `@testing-library/react`
+— CartDrawer store integration, ReservationForm submission, useCustomRouter hash navigation.
 
 ---
 
@@ -160,37 +178,57 @@ npm test           # run test suite
 
 ## Roadmap
 
-### Short-term
-- [ ] Patch rollup CVE — upgrade vite to 6.5.0
-- [x] Remove unused deps — react-router-dom, react-markdown
-- [x] Add LICENSE (ISC)
-- [x] Add CONTRIBUTING.md
-- [x] Vitest smoke tests
-- [ ] GitHub Actions CI (lint + build + npm audit)
+### Phase 0 — Emergency (Completed)
+- [x] Remove `node_modules` from git tracking
+- [x] Add `dist/`, `.DS_Store`, `coverage/` to `.gitignore`
+- [x] Create `lib/safeStorage.ts` — Zod-guarded localStorage wrapper
+- [x] Materialize `docs/adr/` — resolves phantom README reference (ADR-0001, 0002, 0003)
 
-### Mid-term (tech debt)
-- [ ] Migrate state: React Context → Zustand
-- [ ] Migrate i18n: custom → react-i18next
-- [ ] Expand test coverage: components + schema tests
-- [ ] Feature-Sliced Design (FSD) folder restructure
+### Phase 1 — Stability · 30 days (Completed)
+- [x] GitHub Actions CI — lint / build / test / security audit
+- [x] `services/reservation.ts` — extract mock I/O from ReservationPage
+- [x] `services/menu.ts` — API migration path scaffold
+- [x] Zod schema tests — guests coerce, date refine, name validation
+- [ ] AppContext: wire `safeRead()` + `useMemo` (manual step pending)
 
-### Long-term
-- [ ] Real backend API (menu data, reservation submission)
-- [ ] Next.js App Router + Server Components
-- [ ] PWA (offline menu, push notifications)
-- [ ] Visual regression testing + Lighthouse CI
+### Phase 2 — Refactor · 60 days (Completed)
+- [x] Zustand stores — `store/cart.store.ts` + `store/language.store.ts`
+- [x] react-i18next — `locales/en.json` + `locales/zh-TW.json`
+- [x] Vite + Vitest upgraded to latest stable
+- [x] Tailwind migrated from CDN to PostCSS (`@import "tailwindcss"`)
+- [x] `index.css` created — resolves missing file observation
+- [ ] UI components migration to Zustand (manual step pending)
+- [ ] `import './lib/i18n'` in index.tsx (manual step pending)
+
+### Phase 3 — Scaling · 90 days (Completed)
+- [x] Feature-Sliced Design scaffold — `src/features/`, `src/entities/`, `src/shared/`
+- [x] React 19 concurrent hooks — `useMenuFilter` (useTransition), `useOptimisticCart` (useOptimistic), `usePageLoader` (lazy + Suspense)
+- [x] `.github/CODEOWNERS` + PR template — bus factor mitigation
+- [x] Component tests — CartDrawer store integration, useCustomRouter hash navigation
+- [x] Coverage workflow — 40% line threshold on main
+- [ ] Wire hooks into UI components (manual step pending)
+
+### Phase 4 — Product (In Progress)
+- [x] Next.js App Router API routes — `/api/menu`, `/api/reservation`, `/api/cart`
+- [x] `services/` updated to real fetch() calls (zero UI change)
+- [x] PWA manifest — `public/manifest.json`
+- [x] Lighthouse CI — a11y ≥ 0.98 enforced as error
+- [ ] Full Next.js migration (Vite still primary)
+- [ ] Database integration (Prisma / Supabase)
+- [ ] User authentication (Phase 4b)
 
 ---
 
 ## Known Issues & Risks
 
 | ID | Severity | Status | Description | Fix |
-|:---|:---|:---|:---|:---|
-| **R-01** | **CRITICAL** | 🔴 Open | **Bus Factor 1** — 100% of project knowledge is with one maintainer. | Onboard 2nd maintainer / establish PR process. |
-| **R-02** | **CRITICAL** | 🔴 Open | **node_modules in git** — Bloats repo size (~10x) and risks environment drift. | Update `.gitignore` and purge history. |
-| **R-03** | **HIGH** | 🔴 Open | **Unsafe localStorage** — Malformed storage data crashes the app at boot. | Implement `try-catch` + Zod validation. |
-| S-01 | **High** | 🟠 Open | rollup CVE [GHSA-mw96-cpmx-2vgc] — Path Traversal | Upgrade vite to `>=6.5.0`. |
-| A-01 | Medium | 🟡 Planned | AppContext God Object — Over-rendering inefficiency. | Zustand migration (see Roadmap). |
+|:---|:---------|:-------|:------------|:----|
+| **R-01** | **CRITICAL** | 🟡 Mitigated | **Bus Factor 1** — CODEOWNERS + PR template added (Phase 3). Second maintainer still needed. | Onboard 2nd maintainer. |
+| **R-02** | **CRITICAL** | ✅ Resolved | **node_modules in git** — Purged and `.gitignore` updated (Phase 0). | Done. |
+| **R-03** | **HIGH** | ✅ Resolved | **Unsafe localStorage** — `lib/safeStorage.ts` with Zod validation (Phase 0). AppContext wiring pending. | Wire `safeRead()` in AppContext manually. |
+| **S-01** | **High** | 🔴 Open | rollup CVE [GHSA-mw96-cpmx-2vgc](https://github.com/advisories/GHSA-mw96-cpmx-2vgc) — Path Traversal. | Upgrade vite to `>=6.5.0` when available on npm. |
+| **A-01** | Medium | 🟡 In Progress | AppContext God Object — Zustand stores created (Phase 2), UI migration pending. | Complete component migration. |
+| **A-02** | Low | 🟡 Planned | Flat root structure (no `src/`) — FSD scaffold created (Phase 3). | Gradual migration per feature. |
 
 ---
 
