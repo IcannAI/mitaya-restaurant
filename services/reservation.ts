@@ -1,18 +1,8 @@
 /**
- * services/reservation.ts
+ * services/reservation.ts (Phase 4 update)
  *
- * Extracts mock I/O from ReservationPage.tsx (R-09, infrastructure leak).
- * Currently simulates a POST /api/reservation endpoint.
- *
- * Usage in ReservationPage.tsx:
- *   import { submitReservation } from '../services/reservation'
- *   const onSubmit = async (data: ReservationFormData) => {
- *     const result = await submitReservation(data)
- *     if (result.ok) setIsSuccess(true)
- *   }
- *
- * Future: Replace the mock implementation with a real fetch() call.
- * Zero changes required in ReservationPage.tsx when backend is ready.
+ * Now calls the real Next.js API route instead of setTimeout mock.
+ * Zero change required in ReservationPage.tsx — same interface.
  */
 import type { ReservationFormData } from '../types'
 
@@ -25,15 +15,20 @@ export async function submitReservation(
   data: ReservationFormData
 ): Promise<ReservationResult> {
   try {
-    // Mock: replace with real API call in Phase 4
-    // return fetch('/api/reservation', { method: 'POST', body: JSON.stringify(data) })
-    await new Promise<void>((resolve) => setTimeout(resolve, 1500))
-    console.log('[mock] Reservation submitted:', data)
+    const res = await fetch('/api/reservation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      return { ok: false, error: err.error ?? `HTTP ${res.status}` }
+    }
     return { ok: true }
   } catch (err) {
     return {
       ok: false,
-      error: err instanceof Error ? err.message : 'Unknown error',
+      error: err instanceof Error ? err.message : 'Network error',
     }
   }
 }

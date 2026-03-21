@@ -1,17 +1,21 @@
 /**
- * services/menu.ts
+ * services/menu.ts (Phase 4 update)
  *
- * Future: replaces MENU_ITEMS from constants.ts with a real API call.
- * Currently re-exports from constants to allow zero-touch migration path.
- *
- * Usage (drop-in replacement in MenuPage.tsx):
- *   import { getMenuItems } from '../services/menu'
- *   const items = await getMenuItems()
+ * Fetches menu from API route with SWR caching strategy.
+ * Falls back to static MENU_ITEMS if fetch fails (resilience).
  */
 import { MENU_ITEMS } from '../constants'
 import type { MenuItem } from '../types'
 
 export async function getMenuItems(): Promise<MenuItem[]> {
-  // Mock: replace with fetch('/api/menu') in Phase 4
-  return Promise.resolve(MENU_ITEMS)
+  try {
+    const res = await fetch('/api/menu', {
+      next: { revalidate: 300 },  // Next.js cache: 5 min
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
+  } catch {
+    console.warn('[menu] API unavailable, falling back to static data')
+    return MENU_ITEMS
+  }
 }
