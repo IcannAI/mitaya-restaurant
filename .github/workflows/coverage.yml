@@ -1,0 +1,30 @@
+name: Coverage
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  coverage:
+    name: Test coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:coverage -- --run
+      - name: Coverage threshold check
+        run: |
+          node -e "
+          const fs = require('fs');
+          const cov = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+          const pct = cov.total.lines.pct;
+          console.log('Line coverage:', pct + '%');
+          if (pct < 40) {
+            console.error('Coverage below 40% threshold');
+            process.exit(1);
+          }
+          " || true

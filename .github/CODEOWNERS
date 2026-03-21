@@ -1,0 +1,17 @@
+# CODEOWNERS
+# Defines who must review changes in each area.
+# As a solo project, this documents ownership and provides a checklist
+# trigger for self-review before merging to main.
+# Refs: R-01 (Bus Factor 1, score 25)
+
+# Default: all changes require IcannAI review
+*                   @IcannAI
+
+# Architecture changes require extra scrutiny
+/docs/adr/          @IcannAI
+/store/             @IcannAI
+/context/           @IcannAI
+
+# Security-sensitive areas
+/lib/safeStorage.ts @IcannAI
+/.github/           @IcannAI

@@ -109,3 +109,313 @@ describe('[Smoke] 多語系切換', () => {
 //   it('加入品項後數量顯示正確', ...)
 //   it('點擊移除後品項消失', ...)
 // })
+
+// ─── Phase 2: Zod Schema Tests ───────────────────────────────
+// Added in Phase 1 to close R-07 (incomplete test coverage).
+// Tests the reservationSchema edge cases flagged in 06-code-review.md.
+
+import { reservationSchema } from '../types'
+
+describe('[Schema] reservationSchema — guests coerce', () => {
+  it('coerces string "5" to number 5', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '5',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.guests).toBe(5)
+  })
+
+  it('rejects guests = 0', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '0',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects guests = 11 (max 10)', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '11',
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('[Schema] reservationSchema — date refine', () => {
+  it('rejects past date', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: '2020-01-01T00:00',
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts future date', () => {
+    const future = new Date(Date.now() + 86400000).toISOString().slice(0, 16)
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: future,
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe('[Schema] reservationSchema — name validation', () => {
+  it('rejects name shorter than 2 chars', () => {
+    const result = reservationSchema.safeParse({
+      name: 'A',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts valid name', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Alice',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+// End of file
+
+// ─── Phase 2: Zod Schema Tests ───────────────────────────────
+// Added in Phase 1 to close R-07 (incomplete test coverage).
+// Tests the reservationSchema edge cases flagged in 06-code-review.md.
+
+import { reservationSchema } from '../types'
+
+describe('[Schema] reservationSchema — guests coerce', () => {
+  it('coerces string "5" to number 5', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '5',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.guests).toBe(5)
+  })
+
+  it('rejects guests = 0', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '0',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects guests = 11 (max 10)', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '11',
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('[Schema] reservationSchema — date refine', () => {
+  it('rejects past date', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: '2020-01-01T00:00',
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts future date', () => {
+    const future = new Date(Date.now() + 86400000).toISOString().slice(0, 16)
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: future,
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe('[Schema] reservationSchema — name validation', () => {
+  it('rejects name shorter than 2 chars', () => {
+    const result = reservationSchema.safeParse({
+      name: 'A',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts valid name', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Alice',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+// ─── Phase 2: Zod Schema Tests ───────────────────────────────
+// Added in Phase 1 to close R-07 (incomplete test coverage).
+// Tests the reservationSchema edge cases flagged in 06-code-review.md.
+
+import { reservationSchema } from '../types'
+
+describe('[Schema] reservationSchema — guests coerce', () => {
+  it('coerces string "5" to number 5', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '5',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.guests).toBe(5)
+  })
+
+  it('rejects guests = 0', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '0',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects guests = 11 (max 10)', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '11',
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('[Schema] reservationSchema — date refine', () => {
+  it('rejects past date', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: '2020-01-01T00:00',
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts future date', () => {
+    const future = new Date(Date.now() + 86400000).toISOString().slice(0, 16)
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: future,
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe('[Schema] reservationSchema — name validation', () => {
+  it('rejects name shorter than 2 chars', () => {
+    const result = reservationSchema.safeParse({
+      name: 'A',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts valid name', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Alice',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+// ─── Phase 2: Zod Schema Tests ───────────────────────────────
+// Added in Phase 1 to close R-07 (incomplete test coverage).
+// Tests the reservationSchema edge cases flagged in 06-code-review.md.
+
+import { reservationSchema } from '../types'
+
+describe('[Schema] reservationSchema — guests coerce', () => {
+  it('coerces string "5" to number 5', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '5',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.guests).toBe(5)
+  })
+
+  it('rejects guests = 0', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '0',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects guests = 11 (max 10)', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '11',
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('[Schema] reservationSchema — date refine', () => {
+  it('rejects past date', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: '2020-01-01T00:00',
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts future date', () => {
+    const future = new Date(Date.now() + 86400000).toISOString().slice(0, 16)
+    const result = reservationSchema.safeParse({
+      name: 'Jo',
+      date: future,
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
+describe('[Schema] reservationSchema — name validation', () => {
+  it('rejects name shorter than 2 chars', () => {
+    const result = reservationSchema.safeParse({
+      name: 'A',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts valid name', () => {
+    const result = reservationSchema.safeParse({
+      name: 'Alice',
+      date: new Date(Date.now() + 86400000).toISOString(),
+      guests: '2',
+    })
+    expect(result.success).toBe(true)
+  })
+})

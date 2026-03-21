@@ -63,3 +63,72 @@ export type ReservationFormData = z.infer<typeof reservationSchema>
 // ─── Router Types ─────────────────────────────────────────────────────────────
 
 export type RoutePath = '/' | '/menu' | '/reservation'
+
+// ─── Storage Schemas (for safe localStorage parsing) ─────────
+// Used by lib/safeStorage.ts to validate data on read.
+export const CartItemsSchema = z.array(
+  z.object({
+    id: z.string(),
+    name: z.object({ en: z.string(), 'zh-TW': z.string() }),
+    price: z.number(),
+    quantity: z.number().int().min(0),
+    category: z.enum(['popular', 'appetizer', 'main', 'dessert', 'drink']),
+    isVegetarian: z.boolean(),
+    image: z.string(),
+    description: z.object({ en: z.string(), 'zh-TW': z.string() }),
+  })
+)
+
+// ─── Storage Schemas (for safe localStorage parsing) ─────────
+// Used by lib/safeStorage.ts to validate data on read.
+// Adding schemas here does NOT affect runtime behaviour until
+// AppContext is updated to use safeRead().
+import { z as _z } from 'zod'
+export const CartItemsSchema = _z.array(
+  _z.object({
+    id: _z.string(),
+    name: _z.object({ en: _z.string(), 'zh-TW': _z.string() }),
+    price: _z.number(),
+    quantity: _z.number().int().min(0),
+    category: _z.string(),
+    isVegetarian: _z.boolean(),
+    image: _z.string(),
+    description: _z.object({ en: _z.string(), 'zh-TW': _z.string() }),
+  })
+)
+
+// ─── Storage Schemas (for safe localStorage parsing) ─────────
+// Used by lib/safeStorage.ts to validate data on read.
+// Adding schemas here does NOT affect runtime behaviour until
+// AppContext is updated to use safeRead().
+import { z as _z } from 'zod'
+export const CartItemsSchema = _z.array(
+  _z.object({
+    id: _z.string(),
+    name: _z.object({ en: _z.string(), 'zh-TW': _z.string() }),
+    price: _z.number(),
+    quantity: _z.number().int().min(0),
+    category: _z.string(),
+    isVegetarian: _z.boolean(),
+    image: _z.string(),
+    description: _z.object({ en: _z.string(), 'zh-TW': _z.string() }),
+  })
+)
+
+// ─── Storage Schemas (for safe localStorage parsing) ─────────
+// Used by lib/safeStorage.ts to validate data on read.
+// Adding schemas here does NOT affect runtime behaviour until
+// AppContext is updated to use safeRead().
+import { z as _z } from 'zod'
+export const CartItemsSchema = _z.array(
+  _z.object({
+    id: _z.string(),
+    name: _z.object({ en: _z.string(), 'zh-TW': _z.string() }),
+    price: _z.number(),
+    quantity: _z.number().int().min(0),
+    category: _z.string(),
+    isVegetarian: _z.boolean(),
+    image: _z.string(),
+    description: _z.object({ en: _z.string(), 'zh-TW': _z.string() }),
+  })
+)
