@@ -1,172 +1,263 @@
 # Contributing to Mitaya's Restaurant Showcase
 
-以下說明如何設定開發環境、提交貢獻，以及本專案的規範。
+This guide covers how to set up your development environment, submit contributions, and follow the project's conventions.
 
 ---
 
-## 開發環境設定
+## Development Environment Setup
 
-### 系統需求
+### System Requirements
 
-| 工具 | 版本需求 |
+| Tool | Version |
 |------|---------|
-| Node.js | >= 20.x（建議使用 LTS） |
+| Node.js | >= 20.x (LTS recommended) |
 | npm | >= 10.x |
-| Git | 任意現代版本 |
+| Git | Any modern version |
 
-### 快速開始
+### Quick Start
 
 ```bash
-# 1. Fork 並 clone 專案
+# 1. Fork and clone the repository
 git clone https://github.com/<your-username>/mitaya-restaurant.git
 cd mitaya-restaurant
 
-# 2. 安裝依賴
+# 2. Install dependencies
 npm install
 
-# 3. 啟動開發伺服器
+# 3. Start the development server
 npm run dev
-# → 開啟 http://localhost:5173
+# Opens http://localhost:5173
 
-# 4. 執行型別檢查
-npm run lint
+# 4. Run type check
+npx tsc --noEmit
 
-# 5. 執行測試
+# 5. Run tests
 npm test
+
+# 6. Run test coverage
+npm run test:coverage
 ```
 
-### 專案結構說明
+### Project Structure
 
 ```
 mitaya-restaurant/
-├── components/          # 共用 UI 元件
-│   └── ui/              # 基礎元件（Button, Input 等）
-├── context/             # AppContext（狀態管理）
-├── hooks/               # 自製 hooks（useCustomRouter 等）
-├── pages/               # 頁面元件（HomePage, MenuPage, ReservationPage）
-├── constants.ts         # 靜態資料與常數
-├── types.ts             # TypeScript 型別定義
-└── App.tsx              # 應用程式入口
+├── components/               # Shared UI components
+│   └── ui/                   # Base components (Button, Input)
+├── context/                  # AppContext — transitional state management
+├── store/                    # Zustand stores (Phase 2)
+│   ├── cart.store.ts         # Cart state — items, total, itemCount
+│   ├── language.store.ts     # Language toggle — isolated from cart
+│   └── index.ts              # Barrel export
+├── hooks/                    # Custom hooks
+│   ├── useCustomRouter.ts    # Hash-based SPA router
+│   ├── useMenuFilter.ts      # useTransition-powered filter (Phase 3)
+│   ├── useOptimisticCart.ts  # useOptimistic cart feedback (Phase 3)
+│   └── usePageLoader.ts      # lazy() + Suspense code splitting (Phase 3)
+├── lib/                      # Utilities
+│   ├── safeStorage.ts        # Zod-guarded localStorage wrapper (Phase 0)
+│   └── i18n.ts               # react-i18next initialisation (Phase 2)
+├── services/                 # API service layer (Phase 1)
+│   ├── reservation.ts        # submitReservation() — calls /api/reservation
+│   └── menu.ts               # getMenuItems() — calls /api/menu with fallback
+├── locales/                  # i18n locale files (Phase 2)
+│   ├── en.json
+│   └── zh-TW.json
+├── pages/                    # Route-level components
+│   ├── HomePage.tsx
+│   ├── MenuPage.tsx
+│   └── ReservationPage.tsx
+├── docs/adr/                 # Architecture Decision Records (Phase 0)
+│   ├── 0001-custom-hash-router.md
+│   ├── 0002-app-context-god-object.md
+│   └── 0003-manual-shadcn-components.md
+├── src/                      # FSD migration target (Phase 3 scaffold)
+│   ├── features/cart/        # Cart feature — public API via index.ts
+│   ├── entities/             # Domain models (menu-item, reservation)
+│   └── shared/               # Truly reusable utilities and config
+├── tests/                    # Test files
+│   ├── smoke.test.ts         # Pure function + Zod schema tests
+│   └── components/           # Component integration tests (Phase 3)
+├── constants.ts              # Static data and menu items
+├── types.ts                  # TypeScript types + Zod schemas
+└── App.tsx                   # Application entry point
 ```
 
-> **注意**：目前所有 source 資料夾位於根目錄而非 `src/`，此為已知架構問題，計畫後續整理。
+> **Note:** All source folders currently sit at the project root rather than under `src/`. This is a known architectural issue. Gradual FSD migration is underway via `src/features/`. See [ADR-0002](./docs/adr/0002-app-context-god-object.md).
 
 ---
 
-## 提交流程
+## Contribution Workflow
 
-### 1. 建立 Branch
+### 1. Create a Branch
 
 ```bash
-# 功能開發
+# Feature development
 git checkout -b feat/your-feature-name
 
-# 問題修復
+# Bug fix
 git checkout -b fix/issue-description
 
-# 文件更新
+# Documentation
 git checkout -b docs/what-you-updated
+
+# Security patch
+git checkout -b security/cve-or-description
 ```
 
-### 2. Commit 規範
+### 2. Commit Conventions
 
-本專案遵循 [Conventional Commits](https://www.conventionalcommits.org/) 格式：
+This project follows [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-<type>(<scope>): <簡短描述>
+<type>(<scope>): <short description>
 
-[可選 body：詳細說明]
+[optional body: detailed explanation]
 
-[可選 footer：關聯 issue，如 Closes #12]
+[optional footer: linked issue, e.g. Closes #12]
 ```
 
-**Type 對照表：**
+**Type reference:**
 
-| Type | 用途 |
-|------|------|
-| `feat` | 新功能 |
-| `fix` | 修復 bug |
-| `docs` | 文件變更 |
-| `style` | 格式調整（不影響邏輯） |
-| `refactor` | 重構（非新功能、非修 bug） |
-| `test` | 新增或修改測試 |
-| `chore` | 建置工具、依賴更新 |
-| `security` | 安全性修補 |
+| Type | When to use |
+|------|-------------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation changes only |
+| `style` | Formatting, no logic change |
+| `refactor` | Refactor without adding features or fixing bugs |
+| `test` | Adding or updating tests |
+| `chore` | Build tools, dependency updates |
+| `security` | Security patches |
 
-**範例：**
+**Examples:**
 
 ```bash
-# ✅ 好的 commit
+# Good commits
 feat(cart): add quantity increment with keyboard support
 fix(form): correct date validation for past dates
 docs(readme): sync tech stack with actual implementation
 chore(deps): upgrade vite to 6.5.0 to patch rollup CVE
+refactor(context): migrate cart state to Zustand store
+test(schema): add reservationSchema date refine edge cases
+security(storage): replace JSON.parse with safeRead + Zod validation
 
-# ❌ 避免的 commit
+# Avoid
 Addimprovements
 fix
 Update README.md
+wip
 ```
 
-### 3. 開 Pull Request
+### 3. Open a Pull Request
 
-- 標題遵循 Conventional Commits 格式
-- 說明你改了什麼、為什麼這樣改
-- 如有視覺變更，附上截圖
-- 確認 `npm run lint` 與 `npm test` 皆通過
+- Title must follow Conventional Commits format
+- Describe what changed and why
+- Attach screenshots for any visual changes
+- Confirm the following all pass locally before opening:
+
+```bash
+npx tsc --noEmit       # zero type errors
+npm run build          # production build succeeds
+npm test -- --run      # all tests pass
+```
+
+The CI pipeline (GitHub Actions) runs these automatically on every PR.
 
 ---
 
-## 測試規範
+## Testing
 
 ```bash
-# 執行所有測試
+# Run all tests
 npm test
 
-# 監聽模式（開發時使用）
+# Watch mode (during development)
 npm test -- --watch
 
-# 產生覆蓋率報告
+# Generate coverage report
 npm run test:coverage
 ```
 
-### 測試重點區域
+### Current Test Coverage
 
-優先為以下邏輯撰寫測試：
+| Suite | File | Tests |
+|-------|------|-------|
+| Cart logic | `tests/smoke.test.ts` | 4 — calcTotal boundary values |
+| Form validation | `tests/smoke.test.ts` | 3 — guests range, name trim |
+| i18n | `tests/smoke.test.ts` | 3 — key lookup, fallback |
+| Schema — guests | `tests/smoke.test.ts` | 3 — coerce, boundary 0/11 |
+| Schema — date | `tests/smoke.test.ts` | 2 — past rejection, future acceptance |
+| Schema — name | `tests/smoke.test.ts` | 2 — min-length enforcement |
+| Cart store | `tests/components/CartDrawer.test.tsx` | 4 — Zustand integration |
+| Router | `tests/components/useCustomRouter.test.ts` | 3 — hash navigation |
 
-- 表單驗證（必填欄位、日期格式、人數範圍）
-- 購物車操作（加入、增減數量、移除、總額計算）
-- 語言切換（i18n 文字對應正確）
-- 路由導覽（hash 變更觸發正確頁面）
+### Priority Areas for New Tests
 
----
+When adding tests, focus on these areas in order:
 
-## 已知限制
-
-| 項目 | 現況 | 說明 |
-|------|------|------|
-| 測試 | 初期建立中 | 歡迎貢獻測試案例 |
-| CI/CD | 尚未建立 | PR 需手動執行 lint 與 test |
-| 路由 | 自製 hash router | 暫不接受遷移至 react-router-dom 的 PR，待架構討論後決定 |
-| 狀態管理 | React Context | Zustand 遷移列入 Roadmap，歡迎討論方案 |
-
----
-
-## 回報Issue
-
-回報 bug 時請包含：
-
-1. 瀏覽器與版本
-2. 重現步驟（Step-by-step）
-3. 預期行為 vs 實際行為
-4. 相關截圖或 console 錯誤
+1. `CartItemsSchema` — localStorage Zod validation edge cases
+2. `ReservationForm` — submit empty form, successful submission flow
+3. `useMenuFilter` — filter by category, vegetarian flag, query string
+4. `useCustomRouter` — route change triggers correct page render
 
 ---
 
-## 行為準則
+## Architecture Notes for Contributors
 
-請保持尊重，歡迎任何程度的貢獻者參與。
+### Before modifying AppContext
+
+Read [ADR-0002](./docs/adr/0002-app-context-god-object.md) first.
+`AppContext` is being migrated to Zustand. New state should go into `store/cart.store.ts` or `store/language.store.ts`, not into AppContext.
+
+### Before modifying the router
+
+Read [ADR-0001](./docs/adr/0001-custom-hash-router.md).
+PRs that migrate `useCustomRouter` to `react-router-dom` require an ADR update and architecture discussion before implementation.
+
+### Before adding a new UI component
+
+Read [ADR-0003](./docs/adr/0003-manual-shadcn-components.md).
+If the component exists in shadcn/ui, prefer migrating to the full shadcn/ui setup rather than adding another manual implementation.
+
+### FSD import rules
+
+The `src/` directory follows Feature-Sliced Design layer rules:
+
+```
+app/ → pages/ → widgets/ → features/ → entities/ → shared/
+```
+
+Lower layers cannot import from higher layers. `shared/` cannot import from any other layer. Violations will be flagged in code review.
 
 ---
 
-*如有任何問題，歡迎開 Issue 討論。*
+## Known Limitations
+
+| Area | Current State | Notes |
+|------|---------------|-------|
+| State management | AppContext + Zustand (transitional) | Zustand stores created (Phase 2); UI component migration pending |
+| i18n | react-i18next installed; AppContext custom i18n still active | Wire `import './lib/i18n'` in index.tsx to complete migration |
+| Routing | Custom hash router | Migration to react-router-dom pending ADR discussion (ADR-0001) |
+| localStorage safety | `safeStorage.ts` created (Phase 0) | Needs to be wired into AppContext to take effect |
+| CI/CD | GitHub Actions running (Phase 1) | Lighthouse CI added (Phase 4); Codecov badge pending |
+| Backend | Next.js API routes scaffolded (Phase 4) | Vite still primary; full Next.js migration in progress |
+
+---
+
+## Reporting Issues
+
+When reporting a bug, please include:
+
+1. Browser and version
+2. Steps to reproduce (step-by-step)
+3. Expected behaviour vs actual behaviour
+4. Relevant screenshots or console errors
+5. Any related `localStorage` contents if the issue involves cart or language state
+
+---
+
+## Code of Conduct
+
+This project welcomes contributors of all experience levels. Please be respectful and constructive in all interactions.
+
