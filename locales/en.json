@@ -1,0 +1,42 @@
+{
+  "nav": {
+    "home": "Home",
+    "menu": "Menu",
+    "reservation": "Reservation"
+  },
+  "hero": {
+    "title": "Welcome to Mitaya",
+    "subtitle": "An unforgettable dining experience",
+    "cta": "View Menu"
+  },
+  "menu": {
+    "title": "Our Menu",
+    "search": "Search dishes...",
+    "filter": {
+      "all": "All",
+      "vegetarian": "Vegetarian"
+    },
+    "addToCart": "Add to Cart",
+    "soldOut": "Sold Out"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "checkout": "Checkout",
+    "remove": "Remove"
+  },
+  "res": {
+    "title": "Make a Reservation",
+    "name": "Full Name",
+    "date": "Date & Time",
+    "guests": "Number of Guests",
+    "notes": "Special Requests",
+    "submit": "Reserve Table",
+    "success": "Reservation Confirmed!",
+    "error": "Please fix the errors above."
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}

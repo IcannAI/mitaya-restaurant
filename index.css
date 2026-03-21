@@ -1,0 +1,6 @@
+/* index.css
+ * Resolves: 01-structure.md "Missing index.css" observation.
+ * Tailwind 4 directive — replaces CDN <script> in index.html.
+ * Zero visual change: same utility classes, smaller bundle via JIT.
+ */
+@import "tailwindcss";
