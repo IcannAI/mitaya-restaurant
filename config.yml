@@ -1,0 +1,23 @@
+Context: I am auditing https://github.com/IcannAI/mitaya-restaurant
+Previous findings: [paste relevant section from previous audit file]
+
+# Save this as audit/config.yml before running the pipeline
+
+profile: faang-audit
+repo_url: "https://github.com/IcannAI/mitaya-restaurant"
+output_dir: "./audit"
+depth:
+  issues: 200
+  commits: "12 months"
+  prs: 100
+  deps: true
+llm_model: claude-sonnet-4-20250514
+output_format: markdown
+citation_style: inline   # always cite file/line/issue number
+severity_scale: P0-P4    # P0=critical, P4=trivial
+
+# Persona: act as a FAANG staff engineer doing due diligence
+persona: >
+  You are a Staff Engineer at a FAANG company performing technical due diligence.
+  Be direct, cite evidence (file paths, issue numbers, commit SHAs).
+  Use severity labels P0–P4. Do not soften findings.

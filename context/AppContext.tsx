@@ -1,6 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, CartItem, MenuItem } from '../types';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
+import { Language, CartItem, MenuItem, CartItemsSchema } from '../types';
 import { TRANSLATIONS } from '../constants';
+import { safeRead, safeWrite } from '../lib/safeStorage';
+import { useCartStore, useLanguageStore } from '../store';
+import i18n from '../lib/i18n';
 
 interface AppContextType {
   language: Language;
@@ -18,58 +21,42 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  // Language
-  const [language, setLanguage] = useState<Language>('en');
+  // Language from Zustand
+  const { language, setLanguage } = useLanguageStore();
 
-  const t = (key: keyof typeof TRANSLATIONS['en']) => {
-    return TRANSLATIONS[language][key] || key;
+  const t = (key: string) => {
+    return i18n.t(key);
   };
 
-  // Cart
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('mitaya-restaurant-cart');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Cart from Zustand
+  const { items: cart, addItem, removeItem, updateQty, total: cartTotal } = useCartStore();
   
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('mitaya-restaurant-cart', JSON.stringify(cart));
-  }, [cart]);
-
   const addToCart = (item: MenuItem) => {
-    setCart(prev => {
-      const existing = prev.find(i => i.id === item.id);
-      if (existing) {
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
-      }
-      return [...prev, { ...item, quantity: 1 }];
-    });
+    addItem(item);
     setIsCartOpen(true);
   };
 
   const removeFromCart = (itemId: string) => {
-    setCart(prev => prev.filter(i => i.id !== itemId));
+    removeItem(itemId);
   };
 
   const updateQuantity = (itemId: string, delta: number) => {
-    setCart(prev => prev.map(i => {
-      if (i.id === itemId) {
-        const newQty = i.quantity + delta;
-        return newQty > 0 ? { ...i, quantity: newQty } : i;
-      }
-      return i;
-    }));
+    const item = cart.find(i => i.id === itemId);
+    if (item) {
+      updateQty(itemId, item.quantity + delta);
+    }
   };
 
-  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const contextValue = useMemo(() => ({
+    language, setLanguage, t: t as any,
+    cart, addToCart, removeFromCart, updateQuantity, cartTotal,
+    isCartOpen, setIsCartOpen
+  }), [language, cart, cartTotal, isCartOpen]);
 
   return (
-    <AppContext.Provider value={{
-      language, setLanguage, t,
-      cart, addToCart, removeFromCart, updateQuantity, cartTotal,
-      isCartOpen, setIsCartOpen
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

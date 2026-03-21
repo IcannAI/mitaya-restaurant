@@ -10,5 +10,7 @@ dist/
 coverage/
 
 audit/
-scripts/
-config.yml
+config.yml# Dependencies — never commit
+# Env files
+.env*.local
+# Dependencies — never commit

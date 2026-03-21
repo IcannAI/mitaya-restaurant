@@ -1,0 +1,5 @@
+audit/
+scripts/
+config.yml
+*.log
+.git/

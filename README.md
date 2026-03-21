@@ -3,7 +3,10 @@
 > A production-quality restaurant showcase built with React 19, TypeScript, and modern frontend engineering practices.
 > Demonstrates system architecture thinking, accessibility-first design, and engineering documentation.
 
-**→ [Live Demo](https://mitaya-restaurant.vercel.app)** &nbsp;|&nbsp; **→ [Architecture](./docs/adr/)** &nbsp;|&nbsp; **→ [Contributing](./CONTRIBUTING.md)**
+**→ [Live Demo](https://mitaya-restaurant.vercel.app)** &nbsp;|&nbsp; **→ [Architecture (Planned)](./docs/adr/)** &nbsp;|&nbsp; **→ [Contributing](./CONTRIBUTING.md)**
+
+> [!WARNING]
+> **Engineering Honesty Disclaimer**: This project is an early-stage MVP. While it uses React 19, it currently carries significant architectural debt (God Context) and a **Critical Bus Factor of 1**. See [Known Issues](#known-issues) for details.
 
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)
@@ -32,6 +35,15 @@ index.tsx
         └── ui/                    # Button, Input (shadcn/ui-inspired)
 ```
 
+### Architectural Trade-offs
+
+| Decision | Approach | Alternative | Why chosen | Technical Cost |
+| :--- | :--- | :--- | :--- | :--- |
+| **State** | `AppContext` (God Object) | Zustand / Redux | Zero-dependency speed; simplified i18n + cart. | Application-wide re-renders; high coupling. |
+| **Routing** | Custom `useCustomRouter` | `react-router-dom` | Control over hash navigation; lightweight. | No nested routes or URL params support. |
+| **i18n** | Inline in `constants.ts` | `react-i18next` | Avoids library overhead for 2-language MVP. | Not scalable for complex locales. |
+| **Reliability** | Unsafe `localStorage` | Zod Guarded | Rapid development prototyping. | Fragile to malformed storage data. |
+
 **Key architectural decisions** (documented in [`docs/adr/`](./docs/adr/)):
 
 | Decision | Choice | Rationale |
@@ -42,7 +54,7 @@ index.tsx
 | Form validation | react-hook-form + Zod v4 | Schema-driven, single source of truth for types and validation |
 
 > **Note on AppContext:** Currently a God Object managing cart, language, and UI state.
-> This is an acknowledged design tradeoff for MVP speed. Refactor tracked in [ADR-0002](./docs/adr/0002-app-context-god-object.md).
+> This is an acknowledged design tradeoff for MVP speed. Refactor tracked in [ADR-0002 (Planned)](./docs/adr/0002-app-context-god-object.md).
 
 ---
 
@@ -170,13 +182,15 @@ npm test           # run test suite
 
 ---
 
-## Known Issues
+## Known Issues & Risks
 
 | ID | Severity | Status | Description | Fix |
-|----|----------|--------|-------------|-----|
-| S-01 | **High** | 🔴 Open | rollup CVE [GHSA-mw96-cpmx-2vgc](https://github.com/advisories/GHSA-mw96-cpmx-2vgc) — Arbitrary File Write via Path Traversal | Upgrade vite to `>=6.5.0` once available on npm registry. Current: `6.4.1` |
-| A-01 | Medium | 🟡 Planned | AppContext God Object — cart / language / UI in one context causes unnecessary re-renders | Zustand migration (see Roadmap) |
-| A-02 | Low | 🟡 Planned | Flat root structure (no `src/`) deviates from Vite convention | FSD migration (see Roadmap) |
+|:---|:---|:---|:---|:---|
+| **R-01** | **CRITICAL** | 🔴 Open | **Bus Factor 1** — 100% of project knowledge is with one maintainer. | Onboard 2nd maintainer / establish PR process. |
+| **R-02** | **CRITICAL** | 🔴 Open | **node_modules in git** — Bloats repo size (~10x) and risks environment drift. | Update `.gitignore` and purge history. |
+| **R-03** | **HIGH** | 🔴 Open | **Unsafe localStorage** — Malformed storage data crashes the app at boot. | Implement `try-catch` + Zod validation. |
+| S-01 | **High** | 🟠 Open | rollup CVE [GHSA-mw96-cpmx-2vgc] — Path Traversal | Upgrade vite to `>=6.5.0`. |
+| A-01 | Medium | 🟡 Planned | AppContext God Object — Over-rendering inefficiency. | Zustand migration (see Roadmap). |
 
 ---
 
